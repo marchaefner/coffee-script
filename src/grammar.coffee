@@ -450,12 +450,9 @@ grammar =
 
   ForBody: [
     o 'FOR Range',                              -> source: LOC(2) new Value($2)
-    o 'ForStart ForSource',                     -> $2.own = $1.own; $2.name = $1[0]; $2.index = $1[1]; $2
-  ]
-
-  ForStart: [
-    o 'FOR ForVariables',                       -> $2
-    o 'FOR OWN ForVariables',                   -> $3.own = yes; $3
+    o 'FOR ForVariables ForInSource',           -> $3.name = $2[0]; $3.index = $2[1]; $3
+    o 'FOR ForVariables ForOfSource',           -> $3.name = $2[0]; $3.index = $2[1]; $3
+    o 'FOR OWN ForVariables ForOfSource',       -> $4.own = yes; $4.name = $3[0]; $5.index = $3[1]; $4
   ]
 
   # An array of all accepted values for a variable inside the loop.
@@ -478,14 +475,17 @@ grammar =
   # The source of a comprehension is an array or object with an optional guard
   # clause. If it's an array comprehension, you can also choose to step through
   # in fixed-size increments.
-  ForSource: [
+  ForInSource: [
     o 'FORIN Expression',                               -> source: $2
-    o 'FOROF Expression',                               -> source: $2, object: yes
     o 'FORIN Expression WHEN Expression',               -> source: $2, guard: $4
-    o 'FOROF Expression WHEN Expression',               -> source: $2, guard: $4, object: yes
     o 'FORIN Expression BY Expression',                 -> source: $2, step:  $4
     o 'FORIN Expression WHEN Expression BY Expression', -> source: $2, guard: $4, step: $6
     o 'FORIN Expression BY Expression WHEN Expression', -> source: $2, step:  $4, guard: $6
+  ]
+
+  ForOfSource: [
+    o 'FOROF Expression',                               -> source: $2, object: yes
+    o 'FOROF Expression WHEN Expression',               -> source: $2, guard: $3, object: yes
   ]
 
   Switch: [
